@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { recognizeProductImage, registerProduct } from "../api.js";
 
-const INITIAL_FORM = { brand: "", productName: "", modelName: "" };
+const INITIAL_FORM = {
+  brand: "",
+  productName: "",
+  modelName: "",
+  purchaseDate: "",
+  purchasePrice: "",
+  purchaseStore: "",
+  warrantyMonths: "",
+  warrantyEndDate: "",
+};
 
 export default function ProductCapture({ onRegistered }) {
   const [file, setFile] = useState(null);
@@ -139,6 +148,56 @@ export default function ProductCapture({ onRegistered }) {
               value={form.modelName}
               onChange={(event) => handleFieldChange("modelName", event.target.value)}
               placeholder="예: WF24DB7000BD"
+            />
+          </label>
+
+          <label>
+            구매일
+            <input
+              type="date"
+              value={form.purchaseDate}
+              onChange={(event) => handleFieldChange("purchaseDate", event.target.value)}
+            />
+          </label>
+
+          <label>
+            구매 가격
+            <input
+              type="number"
+              min="0"
+              value={form.purchasePrice}
+              onChange={(event) => handleFieldChange("purchasePrice", event.target.value)}
+              placeholder="예: 560000"
+            />
+          </label>
+
+          <label>
+            구매처
+            <input
+              type="text"
+              value={form.purchaseStore}
+              onChange={(event) => handleFieldChange("purchaseStore", event.target.value)}
+              placeholder="예: 삼성 딜라이트 스토어"
+            />
+          </label>
+
+          <label>
+            보증 기간(개월)
+            <input
+              type="number"
+              min="0"
+              value={form.warrantyMonths}
+              onChange={(event) => handleFieldChange("warrantyMonths", event.target.value)}
+              placeholder="예: 12"
+            />
+          </label>
+
+          <label>
+            보증 종료일
+            <input
+              type="date"
+              value={form.warrantyEndDate}
+              onChange={(event) => handleFieldChange("warrantyEndDate", event.target.value)}
             />
           </label>
 

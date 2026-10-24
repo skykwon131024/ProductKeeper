@@ -45,3 +45,18 @@ export async function addProduct(product) {
   await writeAll(products);
   return product;
 }
+
+export async function updateProduct(id, updates) {
+  const products = await readAll();
+  const index = products.findIndex((product) => product.id === id);
+  if (index === -1) return null;
+
+  const updated = {
+    ...products[index],
+    ...updates,
+  };
+
+  products[index] = updated;
+  await writeAll(products);
+  return updated;
+}

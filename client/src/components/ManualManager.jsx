@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
-import { askManualQuestion, fetchManuals, fetchProducts, uploadManuals } from "../api.js";
+import {
+  askManualQuestion,
+  fetchManuals,
+  fetchProducts,
+  searchManualsForProduct,
+  uploadManuals,
+} from "../api.js";
 
 export default function ManualManager({ refreshKey }) {
   const [products, setProducts] = useState([]);
@@ -8,6 +14,8 @@ export default function ManualManager({ refreshKey }) {
   const [status, setStatus] = useState("idle"); // idle | uploading
   const [errorMessage, setErrorMessage] = useState("");
   const [manualsRefreshKey, setManualsRefreshKey] = useState(0);
+  const [manualSearchResults, setManualSearchResults] = useState([]);
+  const [searchingManuals, setSearchingManuals] = useState(false);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState(null);
   const [asking, setAsking] = useState(false);
@@ -76,6 +84,26 @@ export default function ManualManager({ refreshKey }) {
     }
   }
 
+  async function handleSearchManuals() {
+    if (!selectedProductId) return;
+
+    setSearchingManuals(true);
+    setErrorMessage("");
+    setManualSearchResults([]);
+
+    try {
+      const data = await searchManualsForProduct(selectedProductId);
+      setManualSearchResults(data.results || []);
+      if ((data.results || []).length === 0) {
+        setErrorMessage("자동 검색 결과가 없어요. 제품명과 모델명을 다시 확인해 주세요.");
+      }
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setSearchingManuals(false);
+    }
+  }
+
   async function handleAsk(event) {
     event.preventDefault();
     if (!question.trim() || !selectedProductId) return;
@@ -135,7 +163,24 @@ export default function ManualManager({ refreshKey }) {
       {errorMessage && <p className="error">{errorMessage}</p>}
 
       {manuals.length === 0 ? (
-        <p className="hint">아직 등록된 설명서가 없어요.</p>
+        <div className="manual-search-box">
+          <p className="hint">아직 등록된 설명서가 없어요. 제품명으로 공식 설명서를 자동으로 찾아볼 수 있어요.</p>
+          <button type="button" onClick={handleSearchManuals} disabled={searchingManuals}>
+            {searchingManuals ? "설명서를 찾는 중이에요..." : "설명서 자동 검색하기"}
+          </button>
+
+          {manualSearchResults.length > 0 && (
+            <ul className="manual-search-results">
+              {manualSearchResults.map((result) => (
+                <li key={result.url}>
+                  <a href={result.url} target="_blank" rel="noreferrer">
+                    {result.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       ) : (
         <ul className="manual-list">
           {manuals.map((manual, index) => (

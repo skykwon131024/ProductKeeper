@@ -8,6 +8,7 @@ import { getProduct } from "../services/productStore.js";
 import { addManuals, listManualsByProduct, updateManual } from "../services/manualStore.js";
 import { extractPagesFromDocument } from "../services/documentIntelligence.js";
 import { answerManualQuestion } from "../services/manualQa.js";
+import { searchManualsForProduct } from "../services/manualSearch.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOAD_DIR = process.env.PRODUCTKEEPER_UPLOAD_DIR || (process.platform === "linux" ? "/tmp/productkeeper-uploads" : path.join(__dirname, "..", "..", "uploads"));
@@ -132,6 +133,26 @@ router.post("/ask", async (req, res) => {
   } catch (error) {
     console.error("설명서 질문 처리 실패:", error.message);
     res.status(502).json({ message: "답변을 만들지 못했어요. AI 연결 설정을 확인해 주세요." });
+  }
+});
+
+router.get("/search", async (req, res) => {
+  const { productId } = req.params;
+
+  const product = await getProduct(productId);
+  if (!product) {
+    return res.status(404).json({ message: "해당 제품을 찾을 수 없어요." });
+  }
+
+  try {
+    const results = await searchManualsForProduct(product);
+    res.json({
+      productName: product.productName,
+      results,
+    });
+  } catch (error) {
+    console.error("설명서 검색 실패:", error.message);
+    res.status(502).json({ message: "설명서 검색에 실패했어요. 잠시 후 다시 시도해 주세요." });
   }
 });
 
