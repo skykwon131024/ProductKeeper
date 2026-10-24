@@ -1,12 +1,28 @@
+function ensureValidAzureOpenAiConfig(endpoint, apiKey, deployment) {
+  const placeholderRegex = /<\s*your[-_ ]?[a-zA-Z0-9_-]*\s*>|\bexample\b|\bplaceholder\b/i;
+
+  if (!endpoint || !apiKey || !deployment) {
+    throw new Error("Azure OpenAI 설정이 없습니다. server/.env에서 AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, AZURE_OPENAI_DEPLOYMENT 값을 입력해 주세요.");
+  }
+
+  if (placeholderRegex.test(endpoint) || placeholderRegex.test(apiKey) || placeholderRegex.test(deployment)) {
+    throw new Error("Azure OpenAI 예시값이 그대로 남아 있습니다. server/.env에서 실제 Azure OpenAI endpoint, API key, deployment 이름으로 바꿔 주세요.");
+  }
+
+  try {
+    new URL(endpoint);
+  } catch {
+    throw new Error("AZURE_OPENAI_ENDPOINT 값이 올바른 URL 형식이 아닙니다. Azure Portal의 Keys and Endpoint 값을 그대로 넣어 주세요.");
+  }
+}
+
 export async function answerManualQuestion(product, manuals, question) {
   const endpoint = process.env.AZURE_OPENAI_ENDPOINT;
   const apiKey = process.env.AZURE_OPENAI_API_KEY;
   const deployment = process.env.AZURE_OPENAI_DEPLOYMENT;
   const apiVersion = process.env.AZURE_OPENAI_API_VERSION || "2024-02-15-preview";
 
-  if (!endpoint || !apiKey || !deployment) {
-    throw new Error("Azure OpenAI 설정이 없습니다. server/.env 값을 확인해 주세요.");
-  }
+  ensureValidAzureOpenAiConfig(endpoint, apiKey, deployment);
 
   const pages = manuals.flatMap((manual) =>
     (manual.pages ?? []).map((page) => ({
@@ -26,8 +42,7 @@ export async function answerManualQuestion(product, manuals, question) {
     method: "POST",
     headers: { "Content-Type": "application/json", "api-key": apiKey },
     body: JSON.stringify({
-      temperature: 0.1,
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
       response_format: { type: "json_object" },
       messages: [
         {
