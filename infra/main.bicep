@@ -4,8 +4,8 @@ param appName string = 'productkeeper-${uniqueString(resourceGroup().id)}'
 @description('리소스를 배치할 Azure 지역')
 param location string = resourceGroup().location
 
-@description('App Service Free 요금제')
-param skuName string = 'F1'
+@description('App Service Basic 요금제')
+param skuName string = 'B1'
 
 @description('App Service Linux 런타임')
 param linuxFxVersion string = 'NODE|22-lts'
@@ -16,9 +16,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2023-01-01' = {
   kind: 'linux'
   sku: {
     name: skuName
-    tier: 'Free'
+    tier: 'Basic'
     size: skuName
-    family: 'F'
+    family: 'B'
     capacity: 1
   }
   properties: {
@@ -36,7 +36,7 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
     siteConfig: {
       linuxFxVersion: linuxFxVersion
       appCommandLine: 'node src/index.js'
-      alwaysOn: false
+      alwaysOn: true
       ftpsState: 'FtpsOnly'
       minTlsVersion: '1.2'
       http20Enabled: true
@@ -64,11 +64,11 @@ resource webApp 'Microsoft.Web/sites@2023-01-01' = {
         }
         {
           name: 'PRODUCTKEEPER_DATA_DIR'
-          value: '/home/site/wwwroot/data'
+          value: '/tmp/productkeeper-data'
         }
         {
           name: 'PRODUCTKEEPER_UPLOAD_DIR'
-          value: '/home/site/wwwroot/uploads'
+          value: '/tmp/productkeeper-uploads'
         }
       ]
     }
