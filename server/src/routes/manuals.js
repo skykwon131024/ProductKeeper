@@ -10,7 +10,7 @@ import { extractPagesFromDocument } from "../services/documentIntelligence.js";
 import { answerManualQuestion } from "../services/manualQa.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = process.env.PRODUCTKEEPER_UPLOAD_DIR || path.join(__dirname, "..", "..", "uploads");
+const UPLOAD_DIR = process.env.PRODUCTKEEPER_UPLOAD_DIR || (process.platform === "linux" ? "/tmp/productkeeper-uploads" : path.join(__dirname, "..", "..", "uploads"));
 const MANUAL_UPLOAD_DIR = path.join(UPLOAD_DIR, "manuals");
 
 fs.mkdirSync(MANUAL_UPLOAD_DIR, { recursive: true });

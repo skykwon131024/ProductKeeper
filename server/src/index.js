@@ -8,7 +8,7 @@ import productsRouter from "./routes/products.js";
 import manualsRouter from "./routes/manuals.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = process.env.PRODUCTKEEPER_UPLOAD_DIR || path.join(__dirname, "..", "uploads");
+const UPLOAD_DIR = process.env.PRODUCTKEEPER_UPLOAD_DIR || (process.platform === "linux" ? "/tmp/productkeeper-uploads" : path.join(__dirname, "..", "uploads"));
 const CLIENT_DIR = path.join(__dirname, "..", "public");
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
