@@ -7,7 +7,7 @@ import { recognizeProductFromImage } from "../services/aiRecognition.js";
 import { addProduct, getProduct, listProducts } from "../services/productStore.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const UPLOAD_DIR = path.join(__dirname, "..", "..", "uploads");
+const UPLOAD_DIR = process.env.PRODUCTKEEPER_UPLOAD_DIR || path.join(__dirname, "..", "..", "uploads");
 
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
